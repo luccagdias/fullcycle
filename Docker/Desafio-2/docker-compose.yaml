@@ -1,0 +1,38 @@
+version: '3.1'
+
+services:
+
+  ngxin:
+    image: nginx
+    container_name: nginx
+    networks:
+      - node-network
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "8080:80"
+
+  app:
+    build:
+      context: node
+    container_name: app
+    networks:
+      - node-network
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: nodedb
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - node-network
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+networks:
+  node-network:
+    name: node-network
+    driver: bridge
